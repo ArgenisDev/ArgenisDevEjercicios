@@ -1,17 +1,17 @@
-import React from 'react'
-import {Text, View, StyleSheet, TouchableOpacity} from 'react-native'
+import React from 'react';
+import {Text, View, StyleSheet, TouchableOpacity, Alert} from 'react-native';
 
 //Helpers
-import {Colors} from '../../../helpers/Colors'
+import {Colors} from '../../../helpers/Colors';
 
 //Dependencies
-import AntDesing from 'react-native-vector-icons/AntDesign'
-import AsyncStorage from '@react-native-async-storage/async-storage'
-import {CommonActions} from '@react-navigation/native'
+import AntDesing from 'react-native-vector-icons/AntDesign';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import {CommonActions} from '@react-navigation/native';
 
-export default function Header ({navigation, setModalVisible, numOrders}) {
-  async function LogOut () {
-    await AsyncStorage.clear()
+export default function Header({navigation, setModalVisible, numOrders}) {
+  async function LogOut() {
+    await AsyncStorage.clear();
     navigation.dispatch(
       CommonActions.reset({
         index: 0,
@@ -28,8 +28,27 @@ export default function Header ({navigation, setModalVisible, numOrders}) {
           },
         ],
       }),
-    )
+    );
   }
+  function ConfirmLogOut() {
+    Alert.alert(
+      'Alerta',
+      'Seguro que desea cerrar sesión?',
+      [
+        {
+          text: 'NO',
+        },
+        {
+          text: 'SI',
+          onPress: () => {
+            LogOut();
+          },
+        },
+      ],
+      {cancelable: false},
+    );
+  }
+
   return (
     <View style={styles.container}>
       <TouchableOpacity
@@ -39,11 +58,11 @@ export default function Header ({navigation, setModalVisible, numOrders}) {
       </TouchableOpacity>
 
       <Text style={styles.text}>Ordenes Activas: {numOrders && numOrders}</Text>
-      <TouchableOpacity onPress={() => LogOut()} style={styles.logout}>
+      <TouchableOpacity onPress={() => ConfirmLogOut()} style={styles.logout}>
         <AntDesing name={'logout'} size={20} color={'#fff'} />
       </TouchableOpacity>
     </View>
-  )
+  );
 }
 
 const styles = StyleSheet.create({
@@ -57,6 +76,7 @@ const styles = StyleSheet.create({
   text: {
     fontSize: 20,
     color: '#fff',
+    marginTop: 4,
     textAlign: 'center',
     fontFamily: 'Poppins-SemiBold',
   },
@@ -69,6 +89,6 @@ const styles = StyleSheet.create({
   },
   logout: {
     marginHorizontal: 24,
-    padding:8
+    padding: 8,
   },
-})
+});

@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react'
+import React, {useEffect, useState} from 'react';
 import {
   Text,
   View,
@@ -7,19 +7,20 @@ import {
   Keyboard,
   TouchableOpacity,
   Alert,
-} from 'react-native'
+} from 'react-native';
 //Dependencies
-import {TextInput} from 'react-native-gesture-handler'
-import AntDesign from 'react-native-vector-icons/AntDesign'
-import AsyncStorage from '@react-native-async-storage/async-storage'
-import {CommonActions} from '@react-navigation/native'
+import {TextInput} from 'react-native-gesture-handler';
+import AntDesign from 'react-native-vector-icons/AntDesign';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import {CommonActions} from '@react-navigation/native';
+import * as Animatable from 'react-native-animatable';
 
 //Helpers
-import {Colors} from '../../../helpers/Colors'
-import Button from '../../../helpers/Button'
-import {fetchCreateOrder} from '../../../helpers/fetch/fetchCreateOrder'
+import {Colors} from '../../../helpers/Colors';
+import Button from '../../../helpers/Button';
+import {fetchCreateOrder} from '../../../helpers/fetch/fetchCreateOrder';
 
-export default function ModalAddOrder ({
+export default function ModalAddOrder({
   navigation,
   setModalVisible,
   numOrders,
@@ -27,30 +28,33 @@ export default function ModalAddOrder ({
   setPostFetch,
   postFetch,
 }) {
-  const [token, setToken] = useState(null)
-  const [flavor, setFlavor] = useState('')
-  const [crust, setCrust] = useState('')
-  const [size, setSize] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [message, setMessage] = useState(null)
-  const [keyboardShow, setKeyboardShow] = useState(false)
+  const [token, setToken] = useState(null);
+  const [flavor, setFlavor] = useState('');
+  const [crust, setCrust] = useState('');
+  const [size, setSize] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState(null);
 
   useEffect(() => {
-    getToken()
-  }, [])
+    getToken();
+  }, []);
 
-  async function getToken () {
-    const item = await AsyncStorage.getItem('token')
-    setToken(item)
+  async function getToken() {
+    const item = await AsyncStorage.getItem('token');
+    setToken(item);
   }
-  async function createOrder () {
+  async function createOrder() {
     if (!flavor.trim() || !crust.trim() || !size.trim()) {
-      setMessage('Por favor complete todos los campos')
-      return
+      setMessage('Por favor complete todos los campos');
+      return;
     }
-    setLoading(true)
+    if (flavor.length>20 || crust.length>20 || size.trim>20){
+      setMessage('Los campos no pueden contener mas de 20 caracteres');
+      return;
+    }
+    setLoading(true);
 
-    response = await fetchCreateOrder(token, crust, flavor, size, numOrders)
+    response = await fetchCreateOrder(token, crust, flavor, size, numOrders);
     if (response.status === 401) {
       Alert.alert(
         'Error',
@@ -76,27 +80,33 @@ export default function ModalAddOrder ({
                       },
                     ],
                   }),
-                )
+                );
             },
           },
         ],
         {cancelable: false},
-      )
+      );
     }
     if (response.status === 201) {
       setModalVisible(false),
         setPostFetch(!postFetch),
         setLoading(false),
         setMessage(null),
-        setFlavor('')
-      setCrust('')
-      setSize('')
+        setFlavor('');
+      setCrust('');
+      setSize('');
     }
   }
   return (
     <Modal visible={visible} transparent>
-      <View style={styles.container}>
-        <View style={styles.centeredView}>
+      <TouchableOpacity
+        activeOpacity={0}
+        onPress={() => setModalVisible(false)}
+        style={styles.container}>
+        <Animatable.View
+          animation={'bounceInLeft'}
+          iterationCount={1}
+          style={styles.centeredView}>
           <TouchableOpacity
             onPress={() => setModalVisible(false)}
             style={styles.buttonClose}>
@@ -105,18 +115,18 @@ export default function ModalAddOrder ({
           <Text style={styles.textTitle}>Añadir una nueva orden</Text>
           <View style={styles.containerInput}>
             <TextInput
-              placeholder={'Tipo'}
+              placeholder={'Sabor'}
               style={styles.input}
-              onChangeText={text => setFlavor(text)}
+              onChangeText={(text) => setFlavor(text)}
               value={flavor}
               placeholderTextColor={'grey'}
             />
           </View>
           <View style={styles.containerInput}>
             <TextInput
-              placeholder={'Sabor'}
+              placeholder={'Corteza'}
               style={styles.input}
-              onChangeText={text => setCrust(text)}
+              onChangeText={(text) => setCrust(text)}
               value={crust}
               placeholderTextColor={'grey'}
             />
@@ -125,7 +135,7 @@ export default function ModalAddOrder ({
             <TextInput
               placeholder={'Tamaño'}
               style={styles.input}
-              onChangeText={text => setSize(text)}
+              onChangeText={(text) => setSize(text)}
               value={size}
               placeholderTextColor={'grey'}
             />
@@ -134,14 +144,14 @@ export default function ModalAddOrder ({
           <View style={styles.containerButton}>
             <Button
               loading={loading}
-              label='Añadir'
+              label="Añadir"
               onPress={() => createOrder()}
             />
           </View>
-        </View>
-      </View>
+        </Animatable.View>
+      </TouchableOpacity>
     </Modal>
-  )
+  );
 }
 
 const styles = StyleSheet.create({
@@ -197,4 +207,4 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     color: Colors.principalColors.alert,
   },
-})
+});
